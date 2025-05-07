@@ -7,7 +7,8 @@ app.title = "UK Economic Growth Drivers Dashboard"
 
 # Define the layout
 app.layout = html.Div(style={'fontFamily': 'Arial, sans-serif', 'padding': '40px'}, children=[
-    html.H1("UK Economic Growth Drivers Dashboard", style={'textAlign': 'center', 'color': '#003366'}),
+    html.H1("📈 UK Economic Growth Drivers Dashboard 💰", style={'textAlign': 'center', 'color': '#003366'}),
+
     
     html.H2("Purpose", style={'marginTop': '40px', 'color': '#004080'}),
     
