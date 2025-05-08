@@ -9,7 +9,10 @@ app.layout = html.Div(style={'fontFamily': 'Arial, sans-serif', 'padding': '40px
 
     dcc.Tabs(id='tabs', value='welcome', children=[
         dcc.Tab(label='Welcome', value='welcome'),
-        dcc.Tab(label='Interest Rates', value='interest-rates')
+        dcc.Tab(label='Interest Rates', value='interest-rates'),
+        dcc.Tab(label='Placeholder 1', value='placeholder-1'),
+        dcc.Tab(label='Placeholder 2', value='placeholder-2'),
+        dcc.Tab(label='Placeholder 3', value='placeholder-3'),
     ]),
 
     html.Div(id='tab-content', style={'marginTop': '30px'})
@@ -48,6 +51,21 @@ def render_tab_content(tab):
             html.Div("📊 Placeholder for interest rate chart", style={
                 'border': '1px dashed #999', 'padding': '20px', 'marginTop': '20px'
             })
+        ])
+    elif tab == 'placeholder-1':
+        return html.Div([
+            html.H2("Placeholder 1"),
+            html.P("Content for Placeholder 1 tab goes here.")
+        ])
+    elif tab == 'placeholder-2':
+        return html.Div([
+            html.H2("Placeholder 2"),
+            html.P("Content for Placeholder 2 tab goes here.")
+        ])
+    elif tab == 'placeholder-3':
+        return html.Div([
+            html.H2("Placeholder 3"),
+            html.P("Content for Placeholder 3 tab goes here.")
         ])
 
 if __name__ == '__main__':
