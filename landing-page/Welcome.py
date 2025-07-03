@@ -1,5 +1,6 @@
 import dash
 from dash import html, dcc, Input, Output
+from InterestRates import interest_rates_layout
 
 app = dash.Dash(__name__)
 app.title = "UK Economic Growth Drivers Dashboard"
@@ -45,13 +46,8 @@ def render_tab_content(tab):
             ])
         ])
     elif tab == 'interest-rates':
-        return html.Div([
-            html.H2("Interest Rates Analysis 📉"),
-            html.P("This section will show visualizations and trends related to interest rates."),
-            html.Div("📊 Placeholder for interest rate chart", style={
-                'border': '1px dashed #999', 'padding': '20px', 'marginTop': '20px'
-            })
-        ])
+        return interest_rates_layout()
+
     elif tab == 'placeholder-1':
         return html.Div([
             html.H2("Placeholder 1"),
