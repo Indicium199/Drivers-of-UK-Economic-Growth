@@ -31,10 +31,10 @@ def render_tab_content(tab):
 
                 # Left: Dashboard Purpose
                 html.Div(style={'width': '48%', 'paddingRight': '20px'}, children=[
-                    html.H2("Dashboard Purpose"),
+                    html.H2("Dashboard Purpose", style={'color': '#003366'}),
                     html.P(
                         "This dashboard provides a simplified consolidated view of key economic indicators "
-                        "that influence the UK's economic growth. It contains data on:"
+                        "that influence the UK's economic growth. It contains data on:",
                     ),
                     html.Ul([
                         html.Li("📊 Interest Rate Data – UK & Global"),
@@ -42,7 +42,7 @@ def render_tab_content(tab):
                         html.Li("💼 Wages Data – UK only"),
                         html.Li("🛒 Cost of Living Data – UK only"),
                     ]),
-                    html.H3("Commentary Preference"),
+                    html.H3("Commentary Preference", style={'color': '#003366'}),
                     dcc.RadioItems(
                         id='commentary-type',
                         options=[
@@ -56,7 +56,7 @@ def render_tab_content(tab):
 
                 # Right: How to Use & Hints and Tips
                 html.Div(style={'width': '48%'}, children=[
-                    html.H2("How to Use the Dashboard"),
+                    html.H2("How to Use the Dashboard", style={'color': '#003366'}),
                     html.P([
                         html.Em([
                             html.Strong("Get started by clicking on the tabs above to explore the data!")
@@ -64,7 +64,7 @@ def render_tab_content(tab):
                     ]),
                     html.P("Each tab contains useful charts and short explainers to help you understand what drives UK economic growth."),
 
-                    html.H3("Hints and Tips"),
+                    html.H3("Hints and Tips", style={'color': '#003366'}),
                     html.Ul([
                         html.Li("Hover over charts for more detail."),
                         html.Li("Use filters to refine what data is displayed."),
