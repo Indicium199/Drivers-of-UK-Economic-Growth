@@ -1,45 +1,50 @@
 from dash import html
+import pandas as pd
 
-def interest_rates_layout():
-    return html.Div([
-        html.H2("Interest Rates Analysis 📉"),
-        html.P("This section will show visualizations and trends related to interest rates."),
+# Assume you've already created and cleaned the interest rate dataframe in IRDataLoad.py
+from IRDataLoad import get_latest_rates  # You should define and import this function
 
-        # 🔹 Graphic row: Left = rate, Right = info box
-        html.Div([
-            # Left box: UK interest rate
-            html.Div([
-                html.H3("🇬🇧 UK Bank of England Current Interest Rate"),
-                html.Div("4.5%", style={
-                    'fontSize': '40px',
-                    'fontWeight': 'bold',
-                    'color': '#003366',
-                    'padding': '20px',
-                    'backgroundColor': '#e6f0ff',
-                    'borderRadius': '10px',
-                    'textAlign': 'center',
-                    'boxShadow': '0 2px 6px rgba(0,0,0,0.1)'
-                })
-            ], style={'width': '45%', 'display': 'inline-block', 'verticalAlign': 'top'}),
+# Fetch data (expects a DataFrame with Country, Rate, Flag columns)
+df = get_latest_rates()
 
-            # Right box: info / prompt
-            html.Div([
-                html.Div("💬 Tell me about central bank interest rates", style={
-                    'fontSize': '18px',
-                    'padding': '20px',
-                    'backgroundColor': '#f2f2f2',
-                    'borderRadius': '10px',
-                    'height': '100%',
-                    'boxShadow': '0 2px 6px rgba(0,0,0,0.05)'
-                })
-            ], style={'width': '50%', 'display': 'inline-block', 'marginLeft': '5%'})
-        ], style={'marginTop': '30px'}),
-
-        # Placeholder chart section
-        html.Div("📊 Placeholder for interest rate chart", style={
-            'border': '1px dashed #999',
-            'padding': '20px',
-            'marginTop': '30px'
-        })
+# Helper to create a circle indicator
+def rate_circle(country, rate, flag):
+    return html.Div(style={
+        'width': '120px',
+        'height': '120px',
+        'borderRadius': '60px',
+        'backgroundColor': '#003366',
+        'color': 'white',
+        'display': 'flex',
+        'flexDirection': 'column',
+        'alignItems': 'center',
+        'justifyContent': 'center',
+        'margin': '10px',
+        'fontWeight': 'bold',
+        'fontSize': '20px',
+        'boxShadow': '0 4px 10px rgba(0,0,0,0.2)'
+    }, children=[
+        html.Div(f"{rate:.2f}%", style={'fontSize': '24px'}),
+        html.Div(style={'marginTop': '5px', 'fontSize': '16px'}, children=[
+            html.Div(f"{flag}", style={'fontSize': '22px'}),
+            html.Div(country, style={'fontSize': '12px'})
+        ])
     ])
 
+# Build the layout
+interest_rates_layout = html.Div(style={'padding': '40px', 'fontFamily': 'Arial'}, children=[
+    html.Div(style={'textAlign': 'left'}, children=[
+        html.H1("Let’s Explore Central Bank Interest Rates", style={'color': '#003366'}),
+        html.H3("Current Central Bank interest rates", style={'color': '#666', 'marginTop': '0'})
+    ]),
+    
+    html.Div(style={
+        'display': 'flex',
+        'flexDirection': 'row',
+        'justifyContent': 'start',
+        'marginTop': '30px',
+        'flexWrap': 'wrap'
+    }, children=[
+        rate_circle(row['Country'], row['Interest Rate'], row['Flag']) for _, row in df.iterrows()
+    ])
+])

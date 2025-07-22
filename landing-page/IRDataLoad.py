@@ -1,49 +1,46 @@
-# This is the script that takes data from the BIS API and cleanses it and transforms it for use in the dashboard
+def get_latest_rates():
+    # Download and load the dataset as you already do
+    import requests, zipfile, io
+    import pandas as pd
 
-import requests
-import zipfile
-import io
-import pandas as pd
+    url = "https://data.bis.org/static/bulk/WS_CBPOL_csv_flat.zip"
+    resp = requests.get(url)
+    resp.raise_for_status()
 
-# 1. Direct link for CBPOL flat CSV (from BIS bulk downloads)
-zip_url = "https://data.bis.org/static/bulk/WS_CBPOL_csv_flat.zip"
+    with zipfile.ZipFile(io.BytesIO(resp.content)) as z:
+        csv_name = [name for name in z.namelist() if name.endswith(".csv")][0]
+        df = pd.read_csv(z.open(csv_name), low_memory=False)
 
-# 2. Download the ZIP
-resp = requests.get(zip_url)
-resp.raise_for_status()
+    # Rename for convenience
+    df = df.rename(columns={
+        'REF_AREA:Reference area': 'Country',
+        'TIME_PERIOD:Time period or range': 'Date',
+        'OBS_VALUE:Observation Value': 'Interest Rate'
+    })
 
-# 3. Unzip and read the CSV
-with zipfile.ZipFile(io.BytesIO(resp.content)) as z:
-    # Assume there's only one CSV in the ZIP
-    csv_name = [name for name in z.namelist() if name.endswith(".csv")][0]
-    df = pd.read_csv(z.open(csv_name), low_memory=False)
+    # Parse date
+    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+    df = df.dropna(subset=['Date', 'Interest Rate'])
 
-# Clean up column names: keep what's after the colon, or the original if no colon
-df.columns = [col.split(":", 1)[-1].strip() for col in df.columns]
+    # Extract 2-letter code
+    df['Code'] = df['Country'].str.extract(r'^([A-Z0-9]{2})')
 
-import pandas as pd
+    # Filter desired countries
+    target_codes = ['GB', 'US', 'JP', 'EZ', 'EA', 'U2']
+    df = df[df['Code'].isin(target_codes)]
 
-# Assuming your data is already loaded into a DataFrame called df
+    # Drop duplicates: keep latest per country
+    latest_df = df.sort_values('Date').drop_duplicates(subset='Code', keep='last')
 
-# Convert the date column to datetime
-df['Time period or range'] = pd.to_datetime(df['Time period or range'], errors='coerce')
+    # Map flags
+    flag_map = {
+        'GB': '🇬🇧',
+        'US': '🇺🇸',
+        'JP': '🇯🇵',
+        'EZ': '🇪🇺',
+        'EA': '🇪🇺',
+        'U2': '🇪🇺'
+    }
+    latest_df['Flag'] = latest_df['Code'].map(flag_map)
 
-# Drop rows with missing values in relevant columns
-df_clean = df.dropna(subset=['Time period or range', 'Observation Value'])
-
-# Filter for the countries of interest
-target_countries = ['GB: United Kingdom', 'US: United States', 'XM: Euro area', 'JP: Japan']
-df_filtered = df_clean[df_clean['Reference area'].isin(target_countries)]
-
-# Sort by date and get the latest record for each country
-latest_rates = (
-    df_filtered.sort_values(by='Time period or range')
-    .groupby('Reference area', as_index=False)
-    .last()[['Reference area', 'Time period or range', 'Observation Value']]
-)
-
-# Rename columns for clarity
-latest_rates.columns = ['Country', 'Date', 'Interest Rate']
-
-# Show the result
-print(latest_rates)
+    return latest_df[['Country', 'Interest Rate', 'Flag']]

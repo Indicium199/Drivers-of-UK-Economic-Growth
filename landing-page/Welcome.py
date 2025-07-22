@@ -94,7 +94,7 @@ def render_tab_content(tab):
         ])
     
     elif tab == 'interest-rates':
-        return interest_rates_layout()
+        return interest_rates_layout
 
     elif tab == 'employment-wages':
         return html.Div([
