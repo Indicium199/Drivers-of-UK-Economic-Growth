@@ -4,6 +4,7 @@ import requests # For making HTTP requests
 import zipfile # For handling zip files
 import io # For handling byte streams
 
+# Create a function to return the latest central bank interest rates for a subset of countries
 def get_latest_rates():
     # Define the URL for the ZIP file for interest rate data from Bank of International Settlements
     url = "https://data.bis.org/static/bulk/WS_CBPOL_csv_flat.zip"
@@ -49,8 +50,9 @@ def get_latest_rates():
 
     # Clean country display names by removing country code and colon
     df["Country"] = df["Country"].str.replace(r'^[A-Z]{2}:\s*', '', regex=True)
-
+    
     return df
+
 
 
 
