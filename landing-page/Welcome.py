@@ -5,8 +5,9 @@ from dash import html, dcc, Input, Output
 # Import the layout for interest rates
 from InterestRates import interest_rates_layout
 
+
 # Initialise the Dash App
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, suppress_callback_exceptions=True)
 # Create the title of the dashboard
 app.title = "UK Economic Growth Drivers Dashboard"
 

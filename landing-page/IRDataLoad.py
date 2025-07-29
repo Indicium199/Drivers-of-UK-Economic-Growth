@@ -54,5 +54,46 @@ def get_latest_rates():
     return df
 
 
+def get_full_timeseries(countries=None, start_date="2005-01-01"):
+    url = "https://data.bis.org/static/bulk/WS_CBPOL_csv_flat.zip"
+    response = requests.get(url)
+    response.raise_for_status()
+
+    with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+        csv_name = [name for name in z.namelist() if name.endswith(".csv")][0]
+        with z.open(csv_name) as f:
+            content = f.read().decode('utf-8', errors='replace')
+            df = pd.read_csv(io.StringIO(content), low_memory=False)
+
+    # Rename columns for easier use
+    df.rename(columns={
+        "REF_AREA:Reference area": "Country",
+        "TIME_PERIOD:Time period or range": "Date",
+        "OBS_VALUE:Observation Value": "Interest Rate"
+    }, inplace=True)
+
+    # Convert types
+    df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+    df["Interest Rate"] = pd.to_numeric(df["Interest Rate"], errors="coerce")
+
+    # Clean country names (remove code prefix like "GB: ")
+    df["Country"] = df["Country"].str.replace(r'^[A-Z]{2}:\s*', '', regex=True)
+
+    # Drop missing values
+    df.dropna(subset=["Date", "Interest Rate", "Country"], inplace=True)
+
+    # Filter by start_date
+    if start_date:
+        df = df[df["Date"] >= pd.to_datetime(start_date)]
+
+    # Filter by countries if provided (case-sensitive to match cleaned country names)
+    if countries:
+        df = df[df["Country"].isin(countries)]
+
+    # Sort data for easier plotting
+    df.sort_values(["Country", "Date"], inplace=True)
+
+    return df
+
 
 
