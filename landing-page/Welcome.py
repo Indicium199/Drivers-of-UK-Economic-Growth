@@ -4,6 +4,7 @@ import dash
 from dash import html, dcc, Input, Output
 # Import the layout for interest rates
 from InterestRates import interest_rates_layout
+from GDP import layout as gdp_layout
 
 
 # Initialise the Dash App
@@ -150,10 +151,9 @@ def render_tab_content(tab):
 
     # Content for Gross Domestic Product tab
     elif tab == 'gdp':
-        return html.Div([
-            html.H2("Gross Domestic Product"),
-            html.P("Content for GDP tab goes here.")
-        ])
+        return gdp_layout
+    
+        
 
 # Start the Dash app server
 if __name__ == '__main__':
