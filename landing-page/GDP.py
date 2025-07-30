@@ -50,7 +50,7 @@ data_table = dash_table.DataTable(
     data=df_display.to_dict('records'),
     style_table={'overflowX': 'auto', 'maxWidth': '700px'},
     style_cell={
-        'fontSize': '12px',
+        'fontSize': '10px',
         'padding': '6px 8px',
         'minWidth': '80px', 'width': '120px', 'maxWidth': '150px',
         'whiteSpace': 'normal',
@@ -88,8 +88,32 @@ layout = html.Div([
     html.H1("Let's Explore Gross Domestic Product (GDP)", style={'color': '#003366', 'fontSize': '20px'}),
     html.H3("G10 Countries Ranked % GDP Change", style={'color': '#666', 'marginTop': '0'}),
     html.Div([
-        # Left column: table
-        html.Div(data_table, style={'width': '48%', 'display': 'inline-block', 'verticalAlign': 'top'}),
+        # Left column: table + description + subheading + explanation
+        html.Div([
+            data_table,
+            html.P(
+                "The table above shows the % change in GDP from 2023 to 2024 for the G10 nations.",
+                style={'fontSize': '14px', 'color': '#555', 'marginTop': '10px'}
+            ),
+            html.H3(
+                "Why does GDP matter to the UK economy?",
+                style={'color': '#666', 'marginTop': '20px'}
+            ),
+            html.P(
+                "🌱 GDP is a good indicator of whether the UK economy is growing or shrinking.",
+                style={'fontSize': '14px', 'color': '#555', 'marginTop': '5px'}
+            ),
+             html.P(
+                "💻 A stronger GDP usually means better business conditions and more jobs.",
+                style={'fontSize': '14px', 'color': '#555', 'marginTop': '5px'}
+             ),
+             html.P(
+                 "🚌 The government uses GDP to decide how much to spend on public services like schools, healthcare and transport.",
+                style={'fontSize': '14px', 'color': '#555', 'marginTop': '5px'}
+             )
+
+        ], style={'width': '48%', 'display': 'inline-block', 'verticalAlign': 'top'}),
+
         # Right column: placeholder for visualizations
         html.Div([
             html.P("Visualisations go here")
