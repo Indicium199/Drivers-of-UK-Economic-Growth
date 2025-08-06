@@ -64,3 +64,46 @@ def get_g10_gdp_change(year_start=2023, year_end=2024):
     ]]
 
     return result_df
+
+import requests
+import pandas as pd
+
+def get_g10_gdp_timeseries(start_year=2000, end_year=2024):
+    g10_codes = ['BE', 'CA', 'FR', 'DE', 'IT', 'JP', 'NL', 'SE', 'CH', 'GB', 'US']
+    all_data = []
+
+    for code in g10_codes:
+        url = f"https://api.worldbank.org/v2/country/{code}/indicator/NY.GDP.MKTP.CD"
+        params = {
+            "format": "json",
+            "date": f"{start_year}:{end_year}",
+            "per_page": 100
+        }
+        response = requests.get(url, params=params)
+        if response.status_code != 200:
+            continue
+        data = response.json()
+
+        if len(data) < 2:
+            continue
+
+        records = data[1]
+        for record in records:
+            country = record["country"]["value"]
+            year = int(record["date"])
+            value = record["value"]
+            if value is not None:
+                all_data.append({
+                    "Country": country,
+                    "Year": year,
+                    "GDP (Current US$)": value
+                })
+
+    df = pd.DataFrame(all_data)
+    df.sort_values(by=["Country", "Year"], inplace=True)
+
+    # Add GDP in trillions
+    df["GDP (Trillions US$)"] = df["GDP (Current US$)"] / 1e12
+    df["GDP (Trillions US$)"] = df["GDP (Trillions US$)"].round(2)
+
+    return df

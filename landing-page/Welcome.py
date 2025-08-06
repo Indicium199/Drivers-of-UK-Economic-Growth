@@ -2,15 +2,17 @@
 import dash
 # Import required Dash components
 from dash import html, dcc, Input, Output
-# Import the layout for interest rates
+# Import the layout for interest rates and GDP
 from InterestRates import interest_rates_layout
-from GDP import layout as gdp_layout
-
+from GDP import layout as gdp_layout, register_callbacks  # import callback registrar for GDP
 
 # Initialise the Dash App
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 # Create the title of the dashboard
 app.title = "UK Economic Growth Drivers Dashboard"
+
+# Register callbacks from GDP module (and others if needed)
+register_callbacks(app)
 
 # Define the layout of the dashboard
 app.layout = html.Div(
@@ -24,7 +26,7 @@ app.layout = html.Div(
             "📈 UK Economic Growth Drivers Dashboard 💰",  # Title of dashboard
             style={
                 'textAlign': 'center',  # Align text center
-                'color': '#003366'  # Text color
+                'color': '#003366'  # Text colour
             }
         ),
         # Create set of tabs for navigating the dashboard
@@ -130,7 +132,7 @@ def render_tab_content(tab):
                 ]
             )
         ])
-    
+
     # Content for the Interest Rates tab
     elif tab == 'interest-rates':
         return interest_rates_layout  # Imported from InterestRates.py
@@ -152,8 +154,6 @@ def render_tab_content(tab):
     # Content for Gross Domestic Product tab
     elif tab == 'gdp':
         return gdp_layout
-    
-        
 
 # Start the Dash app server
 if __name__ == '__main__':

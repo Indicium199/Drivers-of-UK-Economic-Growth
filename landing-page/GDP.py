@@ -1,14 +1,17 @@
-from dash import html, dash_table
+from dash import html, dash_table, dcc, Input, Output
 from dash.dash_table.Format import Format, Scheme
-from GDPDataLoader import get_g10_gdp_change
+import plotly.express as px
+from GDPDataLoader import get_g10_gdp_change, get_g10_gdp_timeseries  # your data functions
 
-# Load and prepare the data
-df_gdp = get_g10_gdp_change(2023, 2024).reset_index()
+# Load data for table (GDP change 2023-2024)
+df_gdp_change = get_g10_gdp_change(2023, 2024).reset_index()
 
-# Select relevant columns
-df_display = df_gdp[['Country', 'GDP Change (Trillions)', '% Change']].copy()
+# Load time series data for line chart (2000-2024)
+df_timeseries = get_g10_gdp_timeseries(2000, 2024)
 
-# Map of G10 countries to flag emojis
+# Prepare data for display table
+df_display = df_gdp_change[['Country', 'GDP Change (Trillions)', '% Change']].copy()
+
 flag_map = {
     'United States': '🇺🇸',
     'United Kingdom': '🇬🇧',
@@ -23,13 +26,9 @@ flag_map = {
     'Belgium': '🇧🇪'
 }
 
-# Add flag emoji to Country name
 df_display['Country'] = df_display['Country'].apply(lambda x: f"{flag_map.get(x, '')} {x}")
-
-# Round % Change for neat display
 df_display['% Change'] = df_display['% Change'].round(2)
 
-# Add arrows (up/down) with color-coded text for % Change
 def format_percent_change(val):
     if val > 0:
         return f"↑ {val}%"
@@ -40,7 +39,6 @@ def format_percent_change(val):
 
 df_display['% Change'] = df_display['% Change'].apply(format_percent_change)
 
-# Create Dash DataTable
 data_table = dash_table.DataTable(
     columns=[
         {"name": "Country", "id": "Country"},
@@ -83,12 +81,15 @@ data_table = dash_table.DataTable(
     page_size=10,
 )
 
-# Layout for the GDP tab
+# Dropdown options for filtering countries (without flags)
+dropdown_options = [{"label": c, "value": c} for c in sorted(df_timeseries["Country"].unique())]
+
 layout = html.Div([
     html.H1("Let's Explore Gross Domestic Product (GDP)", style={'color': '#003366', 'fontSize': '20px'}),
-    html.H3("G10 Countries Ranked % GDP Change", style={'color': '#666', 'marginTop': '0'}),
+    html.H3("G10 Countries % GDP Change", style={'color': '#666', 'marginTop': '0'}),
+    
     html.Div([
-        # Left column: table + description + subheading + explanation
+        # Left side: DataTable and narrative
         html.Div([
             data_table,
             html.P(
@@ -99,24 +100,44 @@ layout = html.Div([
                 "Why does GDP matter to the UK economy?",
                 style={'color': '#666', 'marginTop': '20px'}
             ),
-            html.P(
-                "🌱 GDP is a good indicator of whether the UK economy is growing or shrinking.",
-                style={'fontSize': '14px', 'color': '#555', 'marginTop': '5px'}
-            ),
-             html.P(
-                "💻 A stronger GDP usually means better business conditions and more jobs.",
-                style={'fontSize': '14px', 'color': '#555', 'marginTop': '5px'}
-             ),
-             html.P(
-                 "🚌 The government uses GDP to decide how much to spend on public services like schools, healthcare and transport.",
-                style={'fontSize': '14px', 'color': '#555', 'marginTop': '5px'}
-             )
-
+            html.P("🌱 GDP is a good indicator of whether the UK economy is growing or shrinking.",
+                   style={'fontSize': '14px', 'color': '#555', 'marginTop': '5px'}),
+            html.P("💻 A stronger GDP usually means better business conditions and more jobs.",
+                   style={'fontSize': '14px', 'color': '#555', 'marginTop': '5px'}),
+            html.P("🚌 The government uses GDP to decide how much to spend on public services like schools, healthcare and transport.",
+                   style={'fontSize': '14px', 'color': '#555', 'marginTop': '5px'})
         ], style={'width': '48%', 'display': 'inline-block', 'verticalAlign': 'top'}),
 
-        # Right column: placeholder for visualizations
+        # Right side: Dropdown + Graph
         html.Div([
-            html.P("Visualisations go here")
+            dcc.Dropdown(
+                id='country-filter',
+                options=dropdown_options,
+                multi=True,
+                value=[option['value'] for option in dropdown_options],  # default select all
+                placeholder="Select countries to display"
+            ),
+            dcc.Graph(id='gdp-line-chart')
         ], style={'width': '48%', 'display': 'inline-block', 'verticalAlign': 'top', 'paddingLeft': '20px'})
     ])
 ])
+
+def register_callbacks(app):
+    @app.callback(
+        Output('gdp-line-chart', 'figure'),
+        Input('country-filter', 'value')
+    )
+    def update_gdp_line_chart(selected_countries):
+        if not selected_countries:
+            return {}
+        filtered_df = df_timeseries[df_timeseries['Country'].isin(selected_countries)]
+        fig = px.line(
+            filtered_df,
+            x='Year',
+            y='GDP (Trillions US$)',
+            color='Country',
+            markers=True,
+            title="GDP Over Time (Trillions US$)"
+        )
+        fig.update_layout(legend_title_text='Country')
+        return fig
