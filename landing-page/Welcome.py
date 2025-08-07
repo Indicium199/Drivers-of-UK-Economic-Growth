@@ -5,6 +5,7 @@ from dash import html, dcc, Input, Output
 # Import the layout for interest rates and GDP
 from InterestRates import interest_rates_layout
 from GDP import layout as gdp_layout, register_callbacks  # import callback registrar for GDP
+from EmpRates import unemployment_kpi_component  # Import your KPI component
 
 # Initialise the Dash App
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
@@ -137,12 +138,24 @@ def render_tab_content(tab):
     elif tab == 'interest-rates':
         return interest_rates_layout  # Imported from InterestRates.py
 
-    # Content for Employment & Wages tab
+    # Content for Employment & Wages tab — now with unemployment KPI on left column
     elif tab == 'employment-wages':
-        return html.Div([
-            html.H2("Employment & Wages"),
-            html.P("Content for Employment & Wages tab goes here.")
-        ])
+        return html.Div(
+            style={'display': 'flex', 'height': '500px'},  # horizontal flex container with fixed height
+            children=[
+                # Left column: Unemployment KPI circle
+                unemployment_kpi_component,
+
+                # Right column: Placeholder or extra info
+                html.Div(
+                    style={'width': '48%', 'paddingLeft': '20px'},
+                    children=[
+                        html.H2("Employment & Wages"),
+                        html.P("Additional content about employment and wages can go here.")
+                    ]
+                )
+            ]
+        )
 
     # Content for Cost of Living tab
     elif tab == 'cost-of-living':

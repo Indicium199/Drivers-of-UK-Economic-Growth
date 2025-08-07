@@ -1,7 +1,7 @@
 from dash import html, dash_table, dcc, Input, Output
 from dash.dash_table.Format import Format, Scheme
 import plotly.express as px
-from GDPDataLoader import get_g10_gdp_change, get_g10_gdp_timeseries  # your data functions
+from GDPDataLoader import get_g10_gdp_change, get_g10_gdp_timeseries  # load in the functions for the underlying table/chart dataframes
 
 # Load data for table (GDP change 2023-2024)
 df_gdp_change = get_g10_gdp_change(2023, 2024).reset_index()
@@ -11,7 +11,7 @@ df_timeseries = get_g10_gdp_timeseries(2000, 2024)
 
 # Prepare data for display table
 df_display = df_gdp_change[['Country', 'GDP Change (Trillions)', '% Change']].copy()
-
+# Map flag emojis to countries
 flag_map = {
     'United States': '🇺🇸',
     'United Kingdom': '🇬🇧',
@@ -108,7 +108,7 @@ layout = html.Div([
                    style={'fontSize': '14px', 'color': '#555', 'marginTop': '5px'})
         ], style={'width': '48%', 'display': 'inline-block', 'verticalAlign': 'top'}),
 
-        # Right side: Dropdown + Graph
+        # Right side: Country filter and line graph
         html.Div([
             dcc.Dropdown(
                 id='country-filter',
