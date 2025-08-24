@@ -149,10 +149,7 @@ def render_tab_content(tab):
                 # Right column: Placeholder or extra info
                 html.Div(
                     style={'width': '48%', 'paddingLeft': '20px'},
-                    children=[
-                        html.H2("Employment & Wages"),
-                        html.P("Additional content about employment and wages can go here.")
-                    ]
+                    
                 )
             ]
         )
